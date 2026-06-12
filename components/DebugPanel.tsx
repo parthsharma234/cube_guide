@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronDown, ChevronUp, Bug } from 'lucide-react';
 import { useState } from 'react';
 import { CubeState } from '@/lib/types';
 
@@ -11,16 +12,19 @@ export default function DebugPanel({ cubeState }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border border-zinc-200 rounded-lg overflow-hidden">
+    <div className="overflow-hidden rounded-3xl border border-black/10 bg-white/70 shadow-[0_10px_24px_rgba(0,0,0,0.06)]">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-2 text-xs font-medium text-zinc-500 hover:bg-zinc-50 transition-colors"
+        className="flex w-full items-center justify-between px-4 py-3 text-xs font-medium text-slate-500 transition-colors hover:bg-white/80"
       >
-        <span>Debug — cube state JSON</span>
-        <span>{open ? '▲' : '▼'}</span>
+        <span className="flex items-center gap-2">
+          <Bug className="size-3.5" />
+          cube state
+        </span>
+        {open ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
       </button>
       {open && (
-        <pre className="text-xs text-zinc-600 bg-zinc-50 p-4 overflow-x-auto leading-relaxed border-t border-zinc-200">
+        <pre className="overflow-x-auto border-t border-black/10 bg-slate-950 px-4 py-4 text-xs leading-relaxed text-slate-200">
           {JSON.stringify(cubeState, null, 2)}
         </pre>
       )}

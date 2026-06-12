@@ -32,7 +32,7 @@ export const COLORS: CubeColor[] = [
   "green",
 ];
 
-// The center sticker (index 4) of each face is locked — it defines the face color
+// Centers are fixed — they define each face's color and never change
 export const FACE_CENTERS: Record<FaceName, CubeColor> = {
   Up: "white",
   Down: "yellow",
@@ -46,8 +46,9 @@ export function makeDefaultCubeState(): CubeState {
   const state = {} as CubeState;
   for (const face of FACE_NAMES) {
     const center = FACE_CENTERS[face];
-    state[face] = Array(9).fill("none") as CubeColor[];
-    state[face][4] = center; // lock center
+    const stickers = Array(9).fill("none") as CubeColor[];
+    stickers[4] = center; // index 4 is always the center
+    state[face] = stickers;
   }
   return state;
 }
