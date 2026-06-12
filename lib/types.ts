@@ -38,8 +38,8 @@ export const FACE_CENTERS: Record<FaceName, CubeColor> = {
   Down: "yellow",
   Front: "red",
   Back: "orange",
-  Left: "blue",
-  Right: "green",
+  Left: "green",
+  Right: "blue",
 };
 
 export function makeDefaultCubeState(): CubeState {

@@ -100,6 +100,7 @@ export default function CubeEditor() {
 
   function handleClear() {
     setCubeState(makeDefaultCubeState());
+    setSelectedColor('none');
     setBoardPulse((value) => value + 1);
     showToast('Cleared');
   }
@@ -107,13 +108,25 @@ export default function CubeEditor() {
   function handleRandom() {
     setCubeState(() => {
       const next = makeDefaultCubeState();
+      const bag = COLORS.flatMap((color) => Array.from({ length: 8 }, () => color));
+
+      for (let i = bag.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+
+      let bagIndex = 0;
       for (const face of Object.keys(next) as FaceName[]) {
         for (let i = 0; i < next[face].length; i++) {
-          if (i !== 4) next[face][i] = COLORS[Math.floor(Math.random() * COLORS.length)];
+          if (i !== 4) {
+            next[face][i] = bag[bagIndex];
+            bagIndex += 1;
+          }
         }
       }
       return next;
     });
+    setSelectedColor('none');
     setBoardPulse((value) => value + 1);
     showToast('Randomized');
   }

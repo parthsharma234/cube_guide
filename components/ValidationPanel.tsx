@@ -1,7 +1,7 @@
 'use client';
 
 import { AlertCircle, CheckCircle2, ClipboardList } from 'lucide-react';
-import { CubeState, CubeColor, COLORS, FACE_CENTERS, FaceName } from '@/lib/types';
+import { CubeColor, CubeState, COLORS, FACE_CENTERS, FaceName } from '@/lib/types';
 import { COLOR_META } from './ColorPalette';
 
 interface Props {
@@ -12,17 +12,42 @@ const COLOR_TO_FACE = Object.fromEntries(
   Object.entries(FACE_CENTERS).map(([face, color]) => [color, face])
 ) as Partial<Record<CubeColor, FaceName>>;
 
+const EDITABLE_STICKERS_PER_COLOR = 8;
+const TOTAL_EDITABLE_STICKERS = EDITABLE_STICKERS_PER_COLOR * COLORS.length;
+
 export default function ValidationPanel({ cubeState }: Props) {
   const counts = Object.fromEntries(COLORS.map((color) => [color, 0])) as Record<CubeColor, number>;
+  let unsetCount = 0;
 
-  for (const face of Object.values(cubeState)) {
-    for (const sticker of face) {
-      if (sticker !== 'none') counts[sticker as CubeColor]++;
+  for (const [, face] of Object.entries(cubeState) as [FaceName, CubeColor[]][]) {
+    for (let index = 0; index < face.length; index++) {
+      if (index === 4) continue;
+
+      const sticker = face[index];
+      if (sticker === 'none') {
+        unsetCount++;
+        continue;
+      }
+
+      counts[sticker]++;
     }
   }
 
-  const painted = COLORS.reduce((total, color) => total + counts[color], 0);
-  const allGood = COLORS.every((color) => counts[color] === 9);
+  const painted = TOTAL_EDITABLE_STICKERS - unsetCount;
+  const allColorCountsGood = COLORS.every((color) => counts[color] === EDITABLE_STICKERS_PER_COLOR);
+  const allGood = unsetCount === 0 && allColorCountsGood;
+
+  const issues = [
+    unsetCount > 0 ? `${unsetCount} editable stickers are still unset.` : null,
+    ...COLORS.map((color) => {
+      const diff = EDITABLE_STICKERS_PER_COLOR - counts[color];
+      if (diff === 0) return null;
+      const { label } = COLOR_META[color];
+      return diff > 0
+        ? `${label} needs ${diff} more non-center sticker${diff === 1 ? '' : 's'}.`
+        : `${label} has ${Math.abs(diff)} too many non-center sticker${Math.abs(diff) === 1 ? '' : 's'}.`;
+    }),
+  ].filter(Boolean) as string[];
 
   return (
     <div className="rounded-[20px] bg-white p-6 shadow-[0_10px_26px_rgba(15,23,42,0.1)] ring-1 ring-black/10">
@@ -38,14 +63,18 @@ export default function ValidationPanel({ cubeState }: Props) {
             allGood ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600',
           ].join(' ')}
         >
-          {painted} / 54
+          {painted} / {TOTAL_EDITABLE_STICKERS}
         </span>
+      </div>
+
+      <div className="mb-4 rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 ring-1 ring-slate-200">
+        Centers are fixed. Each color should appear on exactly {EDITABLE_STICKERS_PER_COLOR} other stickers.
       </div>
 
       <div className="flex flex-col gap-3">
         {COLORS.map((color) => {
           const count = counts[color];
-          const ok = count === 9;
+          const ok = count === EDITABLE_STICKERS_PER_COLOR;
           const { hex, label } = COLOR_META[color];
           const face = COLOR_TO_FACE[color];
 
@@ -64,9 +93,12 @@ export default function ValidationPanel({ cubeState }: Props) {
               </div>
               <div
                 key={`${color}-${count}`}
-                className={['font-display text-lg font-semibold tabular-nums animate-count-pop', ok ? 'text-green-600' : 'text-red-600'].join(' ')}
+                className={[
+                  'font-display text-lg font-semibold tabular-nums animate-count-pop',
+                  ok ? 'text-green-600' : 'text-red-600',
+                ].join(' ')}
               >
-                {count} / 9
+                {count} / {EDITABLE_STICKERS_PER_COLOR}
               </div>
             </div>
           );
@@ -80,7 +112,14 @@ export default function ValidationPanel({ cubeState }: Props) {
         ].join(' ')}
       >
         {allGood ? <CheckCircle2 className="mt-0.5 size-5 shrink-0" /> : <AlertCircle className="mt-0.5 size-5 shrink-0" />}
-        <span>{allGood ? 'Cube is complete. Ready to solve.' : 'Some colors are incomplete. Keep painting.'}</span>
+        <div className="flex min-w-0 flex-col">
+          <span>{allGood ? 'Counts look solvable. Each center has 8 matching stickers.' : 'Cube entry is not valid yet.'}</span>
+          {!allGood && issues.length > 0 && (
+            <span className="mt-1 text-sm font-medium text-red-600">
+              {issues[0]}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

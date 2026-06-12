@@ -10,7 +10,7 @@ export const COLOR_META: Record<CubeColor, { hex: string; label: string }> = {
   orange: { hex: '#FF930F', label: 'Orange' },
   blue: { hex: '#168AF2', label: 'Blue' },
   green: { hex: '#2CC84D', label: 'Green' },
-  none: { hex: '#F8FAFC', label: 'Unset' },
+  none: { hex: '#CBD5E1', label: 'Unset' },
 };
 
 export const COLOR_TAILWIND: Record<CubeColor, { bg: string; border: string }> = {
@@ -20,12 +20,12 @@ export const COLOR_TAILWIND: Record<CubeColor, { bg: string; border: string }> =
   orange: { bg: 'bg-[#FF930F]', border: 'border-slate-950' },
   blue: { bg: 'bg-[#168AF2]', border: 'border-slate-950' },
   green: { bg: 'bg-[#2CC84D]', border: 'border-slate-950' },
-  none: { bg: 'bg-white', border: 'border-slate-950' },
+  none: { bg: 'bg-slate-300', border: 'border-slate-950' },
 };
 
 const COLOR_TO_FACE = Object.fromEntries(
   Object.entries(FACE_CENTERS).map(([face, color]) => [color, face])
-) as Record<CubeColor, FaceName>;
+) as Partial<Record<CubeColor, FaceName>>;
 
 interface Props {
   selected: CubeColor;
@@ -45,7 +45,7 @@ export default function ColorPalette({ selected, onSelect }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-5">
-          {COLORS.map((color) => {
+          {[...COLORS, 'none' as const].map((color) => {
             const active = color === selected;
             const { hex, label } = COLOR_META[color];
             const face = COLOR_TO_FACE[color];
