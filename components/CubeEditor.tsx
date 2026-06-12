@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import type { ElementType, PointerEvent, ReactNode } from 'react';
+import type { PointerEvent, ReactNode } from 'react';
 import {
   BookOpen,
   FileJson,
   Home,
   Lightbulb,
+  type LucideIcon,
   Paintbrush,
   RotateCcw,
   Shuffle,
@@ -21,6 +22,7 @@ import {
 } from '@/lib/types';
 import ColorPalette from './ColorPalette';
 import CubeFace from './CubeFace';
+import CubeVisualizer from './CubeVisualizer';
 import ValidationPanel from './ValidationPanel';
 
 const CUBE_NET: (FaceName | null)[][] = [
@@ -244,6 +246,7 @@ export default function CubeEditor() {
 
           <aside className="flex min-w-0 flex-col gap-4">
             <ValidationPanel cubeState={cubeState} />
+            <CubeVisualizer cubeState={cubeState} />
           </aside>
         </div>
       </div>
@@ -277,7 +280,7 @@ function Brand() {
   );
 }
 
-function NavItem({ icon: Icon, label, active }: { icon: ElementType; label: string; active?: boolean }) {
+function NavItem({ icon: Icon, label, active }: { icon: LucideIcon; label: string; active?: boolean }) {
   return (
     <button
       className={[
@@ -298,7 +301,7 @@ function HeaderBtn({
   children,
 }: {
   onClick: () => void;
-  icon: ElementType;
+  icon: LucideIcon;
   children: ReactNode;
 }) {
   return (
@@ -319,7 +322,7 @@ function ToolBtn({
   danger,
 }: {
   onClick: () => void;
-  icon: ElementType;
+  icon: LucideIcon;
   children: ReactNode;
   danger?: boolean;
 }) {
